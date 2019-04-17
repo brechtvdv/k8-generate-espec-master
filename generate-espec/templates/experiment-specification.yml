@@ -1,0 +1,51 @@
+version: 1.0-basic
+rspec: kube.rspec
+upload:
+  - meta: manifest.xml
+  - generated: keypair
+  - generated:
+      method: random
+      format: alphanum
+      length: 6
+    path: token-part1.txt
+    nodes: [node{{range(1, amount_nodes + 1)|join(',node')}},master]
+  - generated:
+      method: random
+      format: alphanum
+      length: 16
+    path: token-part2.txt
+    nodes: [node{{range(1, amount_nodes + 1)|join(',node')}},master]
+  - bundled: kube-flannel.yml
+    nodes: master
+  {% for f in include_files %}
+  - {{ f }}
+  {% endfor %}
+execute:
+  - bundled: setup_ipv4.sh
+    sudo: true
+  - bundled: setup_kubernetes_common.sh
+    sudo: true
+    nodes: [node{{range(1, amount_nodes + 1)|join(',node')}},master]
+    {% if influxdb %}
+  - bundled: setup_insecure_registry.sh
+    sudo: true
+    nodes: [node{{range(1, amount_nodes + 1)|join(',node')}},master]
+    {% endif %}
+  - bundled: setup_kubernetes_master.sh
+    nodes: master
+    sudo: true
+  - bundled: setup_kubernetes_node.sh
+    nodes: [node{{range(1, amount_nodes + 1)|join(',node')}}]
+    sudo: true
+  {% if influxdb %}
+  - bundled: setup_influx.sh
+    nodes: influxdb
+    sudo: true
+  - bundled: copy_kube_config.sh
+    nodes: influxdb
+  {% endif %}
+  {% if gateway %}
+  - bundled: setup_apache.sh
+    nodes: apache
+    sudo: true
+  {% endif %}
