@@ -13,6 +13,7 @@ apt-get update
 swapoff -a
 apt-get install -y docker-ce=17.06.0~ce-0~ubuntu containerd.io
 #apt-get install -y kubelet=1.7.8-00 kubeadm=1.7.8-00 kubectl=1.7.8-00 kubernetes-cni
-apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+apt-get install -y kubelet=1.14* kubeadm=1.14* kubectl=1.14* 
+#kubernetes-cni
 
 rm -rf /var/lib/kubelet/*
