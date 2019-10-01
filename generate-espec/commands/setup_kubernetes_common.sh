@@ -17,3 +17,6 @@ apt-get install -y kubelet=1.14* kubeadm=1.14* kubectl=1.14*
 #kubernetes-cni
 
 rm -rf /var/lib/kubelet/*
+
+# This is necessary for crate-db
+sysctl -w vm.max_map_count=262144
